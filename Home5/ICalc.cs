@@ -8,6 +8,10 @@ namespace Home5
         void Sub(int i);
         void Mul(int i);
         void Div(int i);
+        void Add(double i);
+        void Sub(double i);
+        void Mul(double i);
+        void Div(double i);
         void CancelLast();
     }
 }

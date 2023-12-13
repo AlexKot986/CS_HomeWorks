@@ -4,11 +4,17 @@ namespace Home5
     internal class Calculator : ICalc
     {
         public event EventHandler<EventArgs> GotResult;
-        public int Result = 0;
-        private Stack<int> stack = new Stack<int>();
+        public double Result = 0;
+        private Stack<double> stack = new Stack<double>();
+        private Stack<CalcActionLog> stackActionLogs = new Stack<CalcActionLog>();
         public void Add(int i)
         {
-            int current = Result;
+            if ((long) Result + i < int.MinValue || (long) Result + i > int.MaxValue)
+            {
+                stackActionLogs.Push(new CalcActionLog(CalcAction.Add, i));
+                throw new CalculatorOperationCauseOverflowException("Переполнение", stackActionLogs);
+            }
+            double current = Result;
             stack.Push(Result);
             Result += i;
             RaisEvent($"{current} + {i} ");
@@ -18,7 +24,7 @@ namespace Home5
         {
             if (stack.Count > 0)
             {
-                int current = Result;
+                double current = Result;
                 Result = stack.Pop();
                 RaisEvent($"CancelLast LastResult = {current}");
             }
@@ -27,27 +33,107 @@ namespace Home5
 
         public void Div(int i)
         {
-            int current = Result;
+            if (i == 0)
+            {
+                stackActionLogs.Push(new CalcActionLog(CalcAction.Div, i));
+                throw new CalculatorDivideByZeroException("Деление на ноль!", stackActionLogs);
+            }               
+            double current = Result;
+            stack.Push(Result);
+            Result /= i;
+            RaisEvent($"{current} / {i} ");          
+        }
+
+        public void Mul(int i)
+        {
+            checked
+            {              
+                if ((long) Result * i < int.MinValue || (long) Result * i > int.MaxValue)
+                {
+                    stackActionLogs.Push(new CalcActionLog(CalcAction.Mul, i));
+                    throw new CalculatorOperationCauseOverflowException("Переполнение", stackActionLogs);
+                }
+                double current = Result;
+                stack.Push(Result);
+                Result *= i;
+                RaisEvent($"{current} * {i} ");
+            }
+        }
+
+        public void Sub(int i)
+        {
+            checked
+            {
+                if ((long) Result - i < int.MinValue || (long) Result - i > int.MaxValue)
+                {
+                    stackActionLogs.Push(new CalcActionLog(CalcAction.Sub, i));
+                    throw new CalculatorOperationCauseOverflowException("Переполнение", stackActionLogs);
+                }
+                double current = Result;
+                stack.Push(Result);
+                Result -= i;
+                RaisEvent($"{current} - {i} ");
+            }
+        }
+
+        public void Add(double i)
+        {
+            if ((long)Result + i < int.MinValue || (long)Result + i > int.MaxValue)
+            {
+                stackActionLogs.Push(new CalcActionLog(CalcAction.Add, i));
+                throw new CalculatorOperationCauseOverflowException("Переполнение", stackActionLogs);
+            }
+            double current = Result;
+            stack.Push(Result);
+            Result += i;
+            RaisEvent($"{current} + {i} ");
+        }
+
+        public void Sub(double i)
+        {
+            checked
+            {
+                if ((long)Result - i < int.MinValue || (long)Result - i > int.MaxValue)
+                {
+                    stackActionLogs.Push(new CalcActionLog(CalcAction.Sub, i));
+                    throw new CalculatorOperationCauseOverflowException("Переполнение", stackActionLogs);
+                }
+                double current = Result;
+                stack.Push(Result);
+                Result -= i;
+                RaisEvent($"{current} - {i} ");
+            }
+        }
+
+        public void Mul(double i)
+        {
+            checked
+            {
+                if ((long)Result * i < int.MinValue || (long)Result * i > int.MaxValue)
+                {
+                    stackActionLogs.Push(new CalcActionLog(CalcAction.Mul, i));
+                    throw new CalculatorOperationCauseOverflowException("Переполнение", stackActionLogs);
+                }
+                double current = Result;
+                stack.Push(Result);
+                Result *= i;
+                RaisEvent($"{current} * {i} ");
+            }
+        }
+
+        public void Div(double i)
+        {
+            if (i == 0)
+            {
+                stackActionLogs.Push(new CalcActionLog(CalcAction.Div, i));
+                throw new CalculatorDivideByZeroException("Деление на ноль!", stackActionLogs);
+            }
+            double current = Result;
             stack.Push(Result);
             Result /= i;
             RaisEvent($"{current} / {i} ");
         }
 
-        public void Mul(int i)
-        {
-            int current = Result;
-            stack.Push(Result);
-            Result *= i;
-            RaisEvent($"{current} * {i} ");
-        }
-
-        public void Sub(int i)
-        {
-            int current = Result;
-            stack.Push(Result);
-            Result -= i;
-            RaisEvent($"{current} - {i} ");
-        }
 
         private void RaisEvent(string message)
         {

@@ -10,36 +10,43 @@ void Calculator_GotResult(object sender, EventArgs e)
 ICalc calc = new Calculator();
 calc.GotResult += Calculator_GotResult;
 
-Console.WriteLine("Введите выражение (типа ('+2', '/ 4') или 'canc' для сброса последнего значения");
-while (true)
+Console.WriteLine("Введите выражение (типа ('+2', '/ 4', ' * 2,123 ') или 'canc' для сброса последнего значения");
+try
 {
-    string input = Console.ReadLine().Replace(" ", "");
-    if (input is "canc")
+    while (true)
     {
-        calc.CancelLast();
-        continue;
-    }
-
-    Regex regex = new(@"[*/+-]{1}\d");
-
-    int digit;
-    
-    if (regex.IsMatch(input))
-    {
-        digit = int.Parse(input.Substring(1, input.Length - 1));
-        switch (input.Substring(0, 1))
+        string input = Console.ReadLine().Replace(" ", "");
+        if (input is "canc")
         {
-            case "+": calc.Add(digit); break;
-            case "-": calc.Sub(digit); break;
-            case "*": calc.Mul(digit); break;
-            case "/": calc.Div(digit); break;
+            calc.CancelLast();
+            continue;
+        }
+
+        Regex regex = new(@"[*/+-]{1}\d");
+
+        double digit;
+
+        if (regex.IsMatch(input))
+        {
+            digit = double.Parse(input.Substring(1, input.Length - 1));
+            switch (input.Substring(0, 1))
+            {
+                case "+": calc.Add(digit); break;
+                case "-": calc.Sub(digit); break;
+                case "*": calc.Mul(digit); break;
+                case "/": calc.Div(digit); break;
+            }
+        }
+        else
+        {
+            Console.WriteLine("Работа завершена!");
+            break;
         }
     }
-    else
-    {
-        Console.WriteLine("Работа завершена!");
-        break;
-    }
 }
-
+catch (CalculatorException e) when (e is CalculatorDivideByZeroException || e is CalculatorOperationCauseOverflowException)
+{
+    Console.WriteLine(e);
+}
+Console.WriteLine("working!");
 calc.GotResult -= Calculator_GotResult;
