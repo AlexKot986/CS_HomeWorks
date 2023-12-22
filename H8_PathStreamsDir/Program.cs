@@ -1,11 +1,8 @@
 ﻿foreach (var arg in args)
     Console.WriteLine(arg);
 
-var currentDirectory = Directory.GetCurrentDirectory();
-
 string extention = args[0];
 string text = args[1];
-
 
 string path = @"E:/GBrains";// Директория начала поиска
 
@@ -18,6 +15,10 @@ catch (UnauthorizedAccessException e)
 {
     Console.WriteLine("-------------Отказано в доступе!------------" + e.Message);
 }
+
+
+
+
 
 void GetSortFiles(DirectoryInfo directoryInfo, string fileExtention, string text)
 {
