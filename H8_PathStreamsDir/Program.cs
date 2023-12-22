@@ -28,7 +28,7 @@ void GetSortFiles(DirectoryInfo directoryInfo, string fileExtention, string text
 
         directory.GetFiles()
                  .ToList()
-                 .FindAll(f => f.Extension.ToLower() == fileExtention)
+                 .FindAll(f => f?.Extension.ToLower() == fileExtention)
                  .Where(f => GetFileConteinsText(f.FullName, text))
                  // Чтобы исключить текущий файл
                  //.Where(f => (f.FullName != new DirectoryInfo(Directory.GetCurrentDirectory() + "/../../../Program.cs").FullName) &&
@@ -44,7 +44,7 @@ bool GetFileConteinsText(string file, string text)
     {
         while (!streamReader.EndOfStream)
         {
-            if (streamReader.ReadLine().ToLower().Contains(text.ToLower()))
+            if (streamReader.ReadLine().Contains(text, StringComparison.CurrentCultureIgnoreCase))
                 return true;
         }
     }
